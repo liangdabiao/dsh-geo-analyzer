@@ -12,7 +12,11 @@
   async function api(path) {
     const res = await fetch(`/geo-analyzer${path}`)
     const body = await res.json().catch(() => ({}))
-    if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+    if (!res.ok) {
+      const err = new Error(body.error || `HTTP ${res.status}`)
+      err.status = res.status
+      throw err
+    }
     return body
   }
   async function apiPost(path, payload) {
@@ -310,7 +314,9 @@
     try {
       data = await api(`/api/runs/${encodeURIComponent(id)}`)
     } catch (e) {
-      return `<a class="back" href="#/">${ic('back')} 概览</a><div class="empty"><div class="e-title">运行不存在</div><p>${esc(e.message)}</p></div>`
+      // 区分「服务连不上」和「run 真不存在」，别把断网误报成数据丢失
+      const netDown = !e.status
+      return `<a class="back" href="#/">${ic('back')} 概览</a><div class="empty"><div class="e-title">${netDown ? '面板服务连接失败' : '运行不存在'}</div><p>${netDown ? '面板的独立预览服务没在运行（嵌入 dsh 时请直接用侧栏面板）。开发预览：DSH_HOME=<数据目录> node scripts/devserver.mjs 5179' : esc(e.message)}</p></div>`
     }
     const run = data.run
     const progress = data.progress
