@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GEO 品牌雷达</title>
+<script src="scheme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script>
+  // 字体在 load 后异步注入：CDN 慢/被墙时不阻塞首帧与 load 事件（退化到系统字体）
+  addEventListener('load', () => {
+    const l = document.createElement('link')
+    l.rel = 'stylesheet'
+    l.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@200..700&family=Noto+Sans+SC:wght@200..700&family=JetBrains+Mono:wght@400;500&display=swap'
+    document.head.appendChild(l)
+  })
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <a class="brand" href="#/">
+      <span><span class="brand-name">GEO 品牌雷达</span><span class="brand-sub">dsh-geo-analyzer</span></span>
+    </a>
+    <nav class="nav" aria-label="导航">
+      <div class="nav-group">分析</div>
+      <a href="#/" data-view="home"><i data-icon="home"></i>概览<span class="nav-count" data-count="runs"></span></a>
+      <a href="#/new" data-view="new"><i data-icon="spark"></i>新建分析</a>
+      <div class="nav-group">配置</div>
+      <a href="#/settings" data-view="settings"><i data-icon="gear"></i>设置</a>
+    </nav>
+    <div class="rail-foot" id="rail-foot"></div>
+  </aside>
+  <main class="main" id="app"><div class="loading">LOADING…</div></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>

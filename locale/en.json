@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "GEO Brand Radar",
+    "description": "Ask six AI search engines (Doubao/Kimi/DeepSeek/Yuanbao/Qianwen/Baidu) the same questions, analyze brand mention rate, ranking, sentiment, citations and competitors, with an interactive report and sidebar dashboard. Requires a RedFox API key."
+  }
+}

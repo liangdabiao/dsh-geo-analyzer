@@ -1,0 +1,5 @@
+# GEO 品牌雷达：geo_analyzer 工具（六平台提问/分析/报告）+ geo-analyzer 技能 + 侧栏看板。
+# 浏览器半边由 dsh.client 声明加载。
+- insert:
+    - id: geo-analyzer
+      name: 'dsh-geo-analyzer'
