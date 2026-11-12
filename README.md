@@ -85,3 +85,8 @@ skills/geo-analyzer/   分析方法论技能（SKILL.md + geo-metrics.md）
 ## License
 
 MIT（本插件代码）。方法论与 API 用例参考 redfox-data/redfox-community（上游未附许可证文件，仅作技术参考；RedFox API 使用受其服务条款约束）。
+
+
+## 特别致谢
+
+https://linux.do 社区支持
