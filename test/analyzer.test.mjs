@@ -112,6 +112,25 @@ test('computeCompetitorMetrics：显式 rank 优先，缺失按提及列表推�
   assert.equal(m['可口可乐'].sentiment.overall.neutral, 1) // 隐式分支补中性
 })
 
+test('未提及品牌的回答不参与平均排名（防模型瞎给 rank 抬高得分）', () => {
+  // 回答里没有品牌名 → 即使模型给了 brand_rank，也要丢掉
+  const per = computePerAnswerAnalysis([
+    mkResult(0, 'doubao', '推荐农夫山泉和可口可乐'),
+    mkResult(0, 'kimi', '没有提到任何饮料品牌'),
+  ], ['元气森林'], {})
+  const ai = [
+    { query_index: 0, platform: 'doubao', brand_rank: 1, sentiment: 'positive' },
+    { query_index: 0, platform: 'kimi', brand_rank: 2, sentiment: 'positive' },
+  ]
+  const merged = mergeAnalysis(per, ai)
+  assert.equal(merged[0].brand_rank, null)
+  assert.equal(merged[1].brand_rank, null)
+  const ranks = computeBrandAvgRank(merged, ['doubao', 'kimi'])
+  assert.equal(ranks.overall, null)
+  // 提及率 0 + 平均排名 null → 30 分（只有情绪分），不会因为假排名变成 60
+  assert.equal(computeGeoScore(0, null, { positive: 2, neutral: 0, negative: 0 }), 30)
+})
+
 test('computeGeoScore：加权与边界', () => {
   // 提及率 1.0、平均排名 1、无负面 → 40 + 30 + 30 = 100
   assert.equal(computeGeoScore(1, 1, { positive: 3, neutral: 1, negative: 0 }), 100)

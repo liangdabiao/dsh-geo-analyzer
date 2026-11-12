@@ -59,7 +59,7 @@ dsh plugin add https://github.com/liangdabiao/dsh-geo-analyzer
 ```bash
 npm i
 npm run build      # client.js → dist/client.js（esbuild 单文件 + 幂等包装）
-npm test           # 28 个单测（分析口径/响应提取/runs 生命周期/报告生成）
+npm test           # 29 个单测（分析口径/响应提取/runs 生命周期/报告生成）
 npm run smoke      # 离线冒烟：本地假 RedFox 服务器全链路（工具直调 + 面板 API）
 npm run live       # 真实 API 冒烟：node scripts/live.mjs <品牌> <品类> ak_xxx（1题×2平台）
 npm run dev        # 面板独立预览：DSH_HOME=<目录> node scripts/devserver.mjs 5179

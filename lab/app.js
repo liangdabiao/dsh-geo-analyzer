@@ -300,7 +300,6 @@
         <div class="block-head"><h3>分平台提及率</h3></div>
         <div class="block-body"><div class="plat-bars">${platBars}</div></div>
       </div>
-      ${matrixHtml(run, null, analysis)}
       ${comps.length ? `<div class="block" style="margin-top:var(--sp-6)">
         <div class="block-head"><h3>竞品对比（提及率 TOP${comps.length}）</h3></div>
         <div class="block-body"><div class="sum-list">${comps.map((c) => `
