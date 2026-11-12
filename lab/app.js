@@ -191,7 +191,7 @@
       <header class="head">
         <span class="eyebrow">NEW RUN</span>
         <h1>新建<strong>分析</strong></h1>
-        <p>创建后到运行页补问题列表（可直接在文本框编辑，或「去对话生成」让 agent 按品类出题）。搜索前确认 RedFox API Key 已配置。</p>
+        <p>填品牌 + 品类即可创建。创建后自动在对话里按品类生成 5 个不带品牌名的测试问题，你确认后就开始六平台搜索，不需要再进运行详情页。</p>
       </header>
       <div class="form">
         <div class="form-row">
@@ -222,10 +222,13 @@
       const competitors = document.getElementById('f-comps').value.split(/[,，、]/).map((s) => s.trim()).filter(Boolean)
       const platforms = [...document.querySelectorAll('input[name="plat"]:checked')].map((n) => n.value)
       try {
+        btn.disabled = true
         const r = await apiPost('/api/runs', { brand, category, aliases, competitors, platforms })
         toast(`运行已创建：${r.run.run_id}`)
-        location.hash = `#/run/${r.run.run_id}`
-      } catch (e) { toast(e.message, true) }
+        // 创建即完成：直接把「出题 → 确认 → 搜索 → 分析 → 报告」交给对话，不再进第二屏
+        sendAgentPrompt(fullFlowPrompt(r.run), '运行已创建，已在对话里生成问题——确认后自动开跑')
+        location.hash = '#/'
+      } catch (e) { toast(e.message, true) } finally { btn.disabled = false }
     }
   }
 
@@ -330,7 +333,7 @@
       : `<div class="hint">${(run.queries || []).length} 问题 × ${run.platforms.length} 平台 = ${(run.queries || []).length * run.platforms.length} 个任务，预计 3-5 分钟。部分平台超时属常见现象。</div>`
 
     const reportBtns = run.has_report
-      ? `<a class="btn accent" href="/geo-analyzer/api/runs/${encodeURIComponent(id)}/report" target="_blank" rel="noreferrer">${ic('ext')}打开完整报告</a>`
+      ? `<button class="btn accent" id="open-report">${ic('ext')}打开完整报告</button>`
       : (run.status === 'searched' || run.status === 'analyzed')
         ? `<button class="btn accent" data-agent>${ic('spark')}去对话：AI 分析 + 生成报告</button>`
         : ''
@@ -377,6 +380,35 @@
       ${!analysis && run.status === 'searched' ? '<div class="empty"><div class="e-title">搜索完成</div><p>点上方「去对话：AI 分析 + 生成报告」——agent 会逐条分析情绪/排名/竞品并生成 GEO 报告与关键发现。</p></div>' : ''}`
   }
 
+  // 完整报告：不依赖新标签页导航（会被弹窗拦截 / 拿不到鉴权 Cookie），
+  // 先在面板内 fetch 报告 HTML，再用 blob URL 内嵌展示；失败时明确 toast。
+  function showReport(html, id) {
+    const prev = document.getElementById('report-modal')
+    if (prev) prev.remove()
+    const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
+    const wrap = document.createElement('div')
+    wrap.id = 'report-modal'
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;gap:8px;padding:16px;background:rgba(15,17,21,.62)'
+    wrap.innerHTML = `
+      <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center">
+        <span style="color:#fff;opacity:.75;margin-right:auto;font-size:12px">GEO 完整报告 · ${esc(id)}</span>
+        <a class="btn" href="${url}" target="_blank" rel="noreferrer">新标签打开</a>
+        <a class="btn" href="${url}" download="geo_report_${esc(id)}.html">下载 HTML</a>
+        <button class="btn accent" data-report-close>关闭</button>
+      </div>
+      <iframe src="${url}" title="GEO 完整报告" style="flex:1;width:100%;border:0;border-radius:10px;background:#fff"></iframe>`
+    document.body.appendChild(wrap)
+    const close = () => {
+      wrap.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+      removeEventListener('keydown', onKey)
+    }
+    const onKey = (e) => { if (e.key === 'Escape') close() }
+    wrap.querySelector('[data-report-close]').onclick = close
+    wrap.addEventListener('click', (e) => { if (e.target === wrap) close() })
+    addEventListener('keydown', onKey)
+  }
+
   function bindRun(id) {
     const saveBtn = document.getElementById('q-save')
     const searchBtn = document.getElementById('q-search')
@@ -400,6 +432,23 @@
         toast(`已提交 ${r.total} 个搜索任务，预计 3-5 分钟`)
         render()
       } catch (e) { toast(e.message, true); searchBtn.disabled = false }
+    }
+    const reportBtn = document.getElementById('open-report')
+    if (reportBtn) reportBtn.onclick = async () => {
+      reportBtn.disabled = true
+      const label = reportBtn.innerHTML
+      reportBtn.textContent = '加载中…'
+      try {
+        const res = await fetch(`/geo-analyzer/api/runs/${encodeURIComponent(id)}/report`)
+        const html = await res.text()
+        if (!res.ok) throw new Error(html.slice(0, 160) || `HTTP ${res.status}`)
+        showReport(html, id)
+      } catch (e) {
+        toast(`打开报告失败：${e.message}`, true)
+      } finally {
+        reportBtn.disabled = false
+        reportBtn.innerHTML = label
+      }
     }
     const delBtn = document.querySelector('[data-del-run]')
     if (delBtn) delBtn.onclick = async () => {
