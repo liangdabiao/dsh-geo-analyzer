@@ -387,12 +387,16 @@
     if (prev) prev.remove()
     const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
     const wrap = document.createElement('div')
+    // 桌面端 WebContentsView 会 deny window.open/target=_blank，blob 链接也不能交给系统浏览器，
+    // 所以内嵌时只保留「下载 HTML」（Chromium 下载可用），不再放「新标签打开」这种点了没反应的按钮
+    const embedded = (() => { try { return window.parent !== window } catch { return false } })()
+    const openTabBtn = embedded ? '' : `<a class="btn" href="${url}" target="_blank" rel="noreferrer">新标签打开</a>`
     wrap.id = 'report-modal'
     wrap.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;gap:8px;padding:16px;background:rgba(15,17,21,.62)'
     wrap.innerHTML = `
       <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center">
         <span style="color:#fff;opacity:.75;margin-right:auto;font-size:12px">GEO 完整报告 · ${esc(id)}</span>
-        <a class="btn" href="${url}" target="_blank" rel="noreferrer">新标签打开</a>
+        ${openTabBtn}
         <a class="btn" href="${url}" download="geo_report_${esc(id)}.html">下载 HTML</a>
         <button class="btn accent" data-report-close>关闭</button>
       </div>
