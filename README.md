@@ -4,6 +4,8 @@ DeepSeek Harness（dsh）插件：**品牌在 AI 搜索引擎里的可见度分�
 向豆包、Kimi、DeepSeek、元宝、千问、百度六大 AI 搜索提出相同问题，分析品牌提及率、排名、情绪、信源引用、竞品对比，生成交互式 HTML 报告 + 侧栏看板。
 
 移植自 [redfox-data/redfox-community](https://github.com/redfox-data/redfox-community) 的 `skills/geo-analyzer`（API 用例与方法论参考；另采纳了同仓库 `brand-geo-analysis-plus` 的三处健壮性改进：限流话术记 invalid 排除出分母、内联引用标记剥离、信源缺失提示）。Python 脚本全部重写为 Node 原生实现，**零 Python 依赖**。
+<img width="2490" height="1404" alt="image" src="https://github.com/user-attachments/assets/ecffcb4a-db3a-4f47-b791-3b093421a8b2" />
+
 
 ## GEO vs SEO
 
