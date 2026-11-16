@@ -51,7 +51,7 @@ HTML 报告单页交互式：顶部锚点导航、报告摘要、品牌指纹、
 ## 安装
 
 ```bash
-dsh plugin add https://github.com/liangdabiao/dsh-geo-analyzer
+dsh plugin --profile web add https://github.com/liangdabiao/dsh-geo-analyzer
 ```
 
 依赖自动安装（仅 `@deepseek-ai/schemastery`；HTTP 层是 node:https 手写的，零第三方运行时依赖）。数据在 `~/.dsh/geo-analyzer/`（`DSH_HOME` 可改）。
